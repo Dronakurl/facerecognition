@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.10)
-
 project(
   FaceRecognition
   VERSION 0.1.0
@@ -21,16 +20,32 @@ include(CPack)
 option(FACERECOGNITION_BUILD_EXAMPLES "Build example programs" ON)
 option(FACERECOGNITION_USE_GLIB_LOGGING "Use GLib logging functions" OFF)
 
-# Find required dependencies
-find_package(OpenCV REQUIRED)
+# Download models
+function(download_file URL DESTINATION)
+  if(NOT EXISTS ${DESTINATION})
+    message(STATUS "Downloading ${URL}")
+    file(DOWNLOAD ${URL} ${DESTINATION})
+  else()
+    message(STATUS "${DESTINATION} already found")
+  endif()
+endfunction()
 
-# Optional GLib dependency
-if(FACERECOGNITION_USE_GLIB_LOGGING)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GLIB REQUIRED glib-2.0)
-else()
-  message(STATUS "GLib logging is disabled")
-endif()
+set(MODEL_URLS
+    "https://github.com/opencv/opencv_zoo/raw/refs/heads/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
+    "https://github.com/opencv/opencv_zoo/raw/refs/heads/main/models/face_recognition_sface/face_recognition_sface_2021dec.onnx"
+)
+set(MODEL_DESTINATIONS
+    "${CMAKE_CURRENT_SOURCE_DIR}/models/face_detection_yunet_2023mar.onnx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/models/face_recognition_sface_2021dec.onnx")
+
+list(LENGTH MODEL_URLS NUM_MODELS)
+math(EXPR LAST_INDEX "${NUM_MODELS} - 1")
+
+foreach(i RANGE ${LAST_INDEX})
+  list(GET MODEL_URLS ${i} URL)
+  list(GET MODEL_DESTINATIONS ${i} DESTINATION)
+  download_file(${URL} ${DESTINATION})
+endforeach()
 
 # Create the library
 add_library(facerecognition src/facerecognition.cpp)

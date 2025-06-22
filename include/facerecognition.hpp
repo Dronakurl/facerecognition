@@ -5,7 +5,6 @@
 #include <string>
 #include <thread>
 
-
 using namespace cv;
 using namespace std;
 
@@ -71,7 +70,8 @@ public:
   /**
    * Initializes the detection and recognition models.
    */
-  FaceRecognition();
+  FaceRecognition(const std::string &fdModelPath = "./models/face_detection_yunet_2023mar.onnx",
+                  const std::string &frModelPath = "./models/face_recognition_sface_2021dec.onnx");
 
   /**
    * Destructor - stops watching thread if running.

@@ -13,21 +13,20 @@
 using namespace cv;
 using namespace std;
 
-#define FD_MODELPATH "/app/models/facerecognition/face_detection_yunet_2023mar.onnx"
-#define FR_MODELPATH "/app/models/facerecognition/face_recognition_sface_2021dec.onnx"
 #define scoreThreshold 0.7
 #define nmsThreshold 0.3
 #define topK 5000
 
-FaceRecognition::FaceRecognition() {
+FaceRecognition::FaceRecognition(const std::string &fdModelPath,
+                                 const std::string &frModelPath) {
   FR_DEBUG("Initializing face recognition");
-  FR_DEBUG("Testing face detection model file exists: %s", FD_MODELPATH);
-  assert(std::filesystem::exists(FD_MODELPATH));
-  FR_DEBUG("Testing face recognition model file exists: %s", FR_MODELPATH);
-  assert(std::filesystem::exists(FR_MODELPATH));
-  this->detector = FaceDetectorYN::create(FD_MODELPATH, "", Size(400, 400), scoreThreshold,
+  FR_DEBUG("Testing face detection model file exists: %s", fdModelPath.c_str());
+  assert(std::filesystem::exists(fdModelPath));
+  FR_DEBUG("Testing face recognition model file exists: %s", frModelPath.c_str());
+  assert(std::filesystem::exists(frModelPath));
+  this->detector = FaceDetectorYN::create(fdModelPath, "", Size(400, 400), scoreThreshold,
                                           nmsThreshold, topK, 0, 0);
-  this->face_recognizer = FaceRecognizerSF::create(FR_MODELPATH, "");
+  this->face_recognizer = FaceRecognizerSF::create(frModelPath, "");
 }
 
 FaceRecognition::~FaceRecognition() { stopWatching(); }
