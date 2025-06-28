@@ -43,12 +43,8 @@ int test_mode(string imagePath, string dbPath) {
   }
 
   FR_INFO("5. Running face recognition on test image...");
-  int result = facerecognizer.run(frame);
-  if (result == 0) {
-    FR_INFO("   Face recognition completed successfully. Check /app/media/result.jpg");
-  } else {
-    FR_INFO("   Face recognition failed with code: ");
-  }
+  MatchResult result = facerecognizer.run_one_face(frame);
+  FR_INFO("Found name: %s", result.toString().c_str());
 
   // Wait a bit to let any initial processing complete
   FR_INFO("6. Waiting 3 seconds...");
@@ -81,10 +77,8 @@ int test_mode(string imagePath, string dbPath) {
   // Run face recognition again to show it's still working
   FR_INFO("9. Running face recognition again after database reload...");
   Mat frame2 = imread(imagePath);
-  result = facerecognizer.run(frame2);
-  if (result == 0) {
-    FR_INFO("   Second face recognition completed successfully.");
-  }
+  result = facerecognizer.run_one_face(frame2);
+  FR_DEBUG("Found name: %s", result.name.c_str());
 
   // Clean up the test file
   FR_INFO("10. Cleaning up test file...");

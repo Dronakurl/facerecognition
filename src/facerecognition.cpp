@@ -17,8 +17,7 @@ using namespace std;
 #define nmsThreshold 0.3
 #define topK 5000
 
-FaceRecognition::FaceRecognition(const std::string &fdModelPath,
-                                 const std::string &frModelPath) {
+FaceRecognition::FaceRecognition(const std::string &fdModelPath, const std::string &frModelPath) {
   FR_DEBUG("Initializing face recognition");
   FR_DEBUG("Testing face detection model file exists: %s", fdModelPath.c_str());
   assert(std::filesystem::exists(fdModelPath));
@@ -141,12 +140,23 @@ void FaceRecognition::resizeFrame(Mat &frame, int maxSize, bool keepAspectRatio)
 
 vector<DetectedFace> FaceRecognition::extractFeatures(Mat &frame) {
   FR_DEBUG("Extracting features from frame");
+  if (!detector) {
+    FR_ERROR("Detector is null");
+    return {};
+  }
+  if (frame.empty()) {
+    FR_ERROR("Frame is empty or invalid");
+    return {};
+  }
   Size originalSize = frame.size();
   resizeFrame(frame, 400, true);
+  FR_DEBUG("Frame size: %d x %d", frame.cols, frame.rows);
+  // FR_DEBUG("Detector input size: %d x %d", detector->getInputSize().width,
+  //          detector->getInputSize().height);
   detector->setInputSize(frame.size());
   Mat faces;
   detector->detect(frame, faces);
-  FR_DEBUG("Found %d faces", faces.rows);
+  // FR_DEBUG("Found %d faces", faces.rows);
   if (faces.rows <= 0) {
     FR_WARNING("Cannot find any faces");
   }
@@ -163,8 +173,7 @@ vector<DetectedFace> FaceRecognition::extractFeatures(Mat &frame) {
 }
 
 MatchResults FaceRecognition::findBestMatch(const Mat &faceFeature, float threshold) {
-  float bestScore = 0.0;
-  string bestName = "Unknown";
+  MatchResult bestmatch = {"Unknown", 0.0};
   vector<MatchResult> results;
 
   for (const auto &pair : featuresMap) {
@@ -173,15 +182,14 @@ MatchResults FaceRecognition::findBestMatch(const Mat &faceFeature, float thresh
     for (Mat feat : features) {
       double score = face_recognizer->match(faceFeature, feat, FaceRecognizerSF::FR_COSINE);
       results.push_back({personName, float(score)});
-      // FR_DEBUG("Score: %f for person %s", score, personName.c_str());
-      if (score > bestScore) {
-        bestScore = float(score);
-        bestName = personName;
+      FR_DEBUG("Person %s, score: %f", personName.c_str(), score);
+      if ((score > bestmatch.score) && (score > threshold)) {
+        bestmatch = MatchResult{personName, float(score)};
       }
     }
   }
 
-  return MatchResults{results, bestName};
+  return MatchResults{results, bestmatch};
 }
 
 void FaceRecognition::loadPersonsDB(filesystem::path persondb_folder, bool force, bool visualize) {
@@ -269,19 +277,33 @@ void FaceRecognition::annotate_with_name(Mat &frame, const DetectedFace &face) {
           Scalar(255, 255, 255), thickness);
 }
 
-int FaceRecognition::run(Mat frame) {
-
+vector<MatchResult> FaceRecognition::run(Mat frame, float threshold) {
   vector<DetectedFace> det_faces = extractFeatures(frame);
-
+  vector<MatchResult> results;
   int i = 1;
-  for (auto &face : det_faces) {
+  for (DetectedFace &face : det_faces) {
     visualize(frame, -1, face.facedetect);
-    face.name = findBestMatch(face.feature).bestmatch;
+    MatchResult best = findBestMatch(face.feature, threshold).bestmatch;
+    face.name = best.name;
     FR_INFO("Face %d best match: %s", i, face.name.c_str());
     annotate_with_name(frame, face);
+    results.push_back(best);
     i++;
   }
-  imwrite("/app/media/result.jpg", frame);
+  return results;
+  // imwrite("/app/media/result.jpg", frame);
+}
 
-  return 0;
+MatchResult FaceRecognition::run_one_face(Mat frame, float threshold) {
+  vector<MatchResult> results = run(frame, threshold);
+  if (results.empty()) {
+    return MatchResult{"Unknown", 0.0};
+  }
+  MatchResult best_match = results[0];
+  for (const MatchResult &result : results) {
+    if (result.score > best_match.score) {
+      best_match = result;
+    }
+  }
+  return best_match;
 }

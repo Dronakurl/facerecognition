@@ -26,9 +26,26 @@ inline string getLoadStatusString(dbLoadStatus status) {
 /**
  * Structure to hold one match result.
  */
-struct MatchResult {
+class MatchResult {
+public:
   string name;
   float score;
+
+  string toLowerCase() const {
+    string lowerStr = name;
+    transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+    return lowerStr;
+  }
+
+  bool isUnknown() const { return toLowerCase() == "unknown"; }
+
+  string toString() const {
+    if (isUnknown())
+      return name;
+    ostringstream oss;
+    oss << fixed << setprecision(2) << score;
+    return name + " (" + oss.str() + ")";
+  }
 };
 
 /**
@@ -36,7 +53,7 @@ struct MatchResult {
  */
 struct MatchResults {
   vector<MatchResult> results;
-  string bestmatch;
+  MatchResult bestmatch;
 };
 
 class DetectedFace {
@@ -103,9 +120,17 @@ public:
    * Performs face recognition on the given frame.
    *
    * @param frame The input frame where faces will be detected and recognized.
-   * @return 0 on success, 1 on failure.
+   * @return list of Matching faces with their names and scores.
    */
-  int run(Mat frame);
+  vector<MatchResult> run(Mat frame, float threshold = 0.3f);
+
+  /**
+   * Performs face recognition on the given frame. Returns only the best matching face.
+   *
+   * @param frame The input frame where faces will be detected and recognized.
+   * @return Best matching face with its name and score.
+   */
+  MatchResult run_one_face(Mat frame, float threshold = 0.3f);
 
   /**
    * @brief Annotate the frame with the name of the person
@@ -124,17 +149,14 @@ public:
 private:
   /// @brief Indicates whether the database is loaded.
   atomic<dbLoadStatus> isDBLoaded = NOT_LOADED;
-
   /// @brief a mapping of name to a vector of features.
   unordered_map<string, vector<Mat>> featuresMap;
-
   /// @brief Face detection model
   Ptr<FaceDetectorYN> detector;
-
   /// @brief Face recognition model
   Ptr<FaceRecognizerSF> face_recognizer;
 
-  /* START Stuff for watching the folder */
+  /********* START Stuff for watching the folder */
   /// @brief Database folder path
   filesystem::path dbPath;
   /// @brief Last modification time of the database folder
@@ -145,7 +167,7 @@ private:
   atomic<bool> watcherRunning{false};
   /// @brief Check interval in seconds
   int checkInterval = 5;
-  /* END Stuff for watching the folder */
+  /********* END Stuff for watching the folder */
 
   /**
    * Thread function that monitors the database folder for changes.

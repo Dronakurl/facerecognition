@@ -20,6 +20,8 @@ include(CPack)
 option(FACERECOGNITION_BUILD_EXAMPLES "Build example programs" ON)
 option(FACERECOGNITION_USE_GLIB_LOGGING "Use GLib logging functions" OFF)
 
+find_package(OpenCV REQUIRED)
+
 # Download models
 function(download_file URL DESTINATION)
   if(NOT EXISTS ${DESTINATION})
