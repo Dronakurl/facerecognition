@@ -16,7 +16,7 @@ A C++ face recognition library built on OpenCV's DNN module, featuring a simple 
 
 ### Requirements
 
-OpenCV 4.x: Install with `sudo apt install libopencv-dev`.
+OpenCV 4.11+: Install with `sudo apt install libopencv-dev` or if your distribution does not provide the newest version, use `./examples/install_opencv.sh` to install opencv 4.11 from the source (this may take a while).
 
 ### Set up person database
 

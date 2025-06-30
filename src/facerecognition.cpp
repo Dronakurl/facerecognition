@@ -139,7 +139,6 @@ void FaceRecognition::resizeFrame(Mat &frame, int maxSize, bool keepAspectRatio)
 }
 
 vector<DetectedFace> FaceRecognition::extractFeatures(Mat &frame) {
-  FR_DEBUG("Extracting features from frame");
   if (!detector) {
     FR_ERROR("Detector is null");
     return {};
@@ -149,7 +148,7 @@ vector<DetectedFace> FaceRecognition::extractFeatures(Mat &frame) {
     return {};
   }
   Size originalSize = frame.size();
-  resizeFrame(frame, 400, true);
+  resizeFrame(frame, 600, true);
   FR_DEBUG("Frame size: %d x %d", frame.cols, frame.rows);
   // FR_DEBUG("Detector input size: %d x %d", detector->getInputSize().width,
   //          detector->getInputSize().height);
@@ -233,7 +232,6 @@ void FaceRecognition::loadPersonsDB(filesystem::path persondb_folder, bool force
             features.push_back(detectedFace.feature);
           }
           if (visualize) {
-            FR_DEBUG("Visualizing image: %s", imgPath.path().c_str());
             filesystem::path original_path = imgPath.path();
             string stem = original_path.stem().string();
             string extension = original_path.extension().string();
@@ -277,25 +275,33 @@ void FaceRecognition::annotate_with_name(Mat &frame, const DetectedFace &face) {
           Scalar(255, 255, 255), thickness);
 }
 
-vector<MatchResult> FaceRecognition::run(Mat frame, float threshold) {
-  vector<DetectedFace> det_faces = extractFeatures(frame);
+vector<MatchResult> FaceRecognition::run(Mat &frame, float threshold, bool visualize) {
+  vector<DetectedFace> det_faces;
+  if (!visualize) {
+    FR_DEBUG("Cloning");
+    Mat frame_copy = frame.clone();
+    det_faces = extractFeatures(frame_copy);
+  } else {
+    det_faces = extractFeatures(frame);
+  }
   vector<MatchResult> results;
   int i = 1;
   for (DetectedFace &face : det_faces) {
-    visualize(frame, -1, face.facedetect);
     MatchResult best = findBestMatch(face.feature, threshold).bestmatch;
     face.name = best.name;
     FR_INFO("Face %d best match: %s", i, face.name.c_str());
-    annotate_with_name(frame, face);
     results.push_back(best);
     i++;
+    if (visualize) {
+      this->visualize(frame, -1, face.facedetect);
+      annotate_with_name(frame, face);
+    }
   }
   return results;
-  // imwrite("/app/media/result.jpg", frame);
 }
 
-MatchResult FaceRecognition::run_one_face(Mat frame, float threshold) {
-  vector<MatchResult> results = run(frame, threshold);
+MatchResult FaceRecognition::run_one_face(Mat frame, float threshold, bool visualize) {
+  vector<MatchResult> results = run(frame, threshold, visualize);
   if (results.empty()) {
     return MatchResult{"Unknown", 0.0};
   }

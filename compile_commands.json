@@ -2,19 +2,35 @@
   {
     "arguments": [
       "/usr/bin/c++",
-      "-DFACERECOGNITION_VERSION=\"1.0.0\"",
-      "-I/app/facerecognition/include",
-      "-I/app/facerecognition/src",
+      "-DFACERECOGNITION_VERSION=\"0.1.0\"",
+      "-I/home/konrad/facerecognition/include",
+      "-I/home/konrad/facerecognition/src",
       "-isystem",
       "/usr/local/include/opencv4",
-      "-g",
       "-c",
       "-o",
       "CMakeFiles/facerecognition.dir/src/facerecognition.cpp.o",
-      "/app/facerecognition/src/facerecognition.cpp"
+      "/home/konrad/facerecognition/src/facerecognition.cpp"
     ],
-    "directory": "/app/facerecognition/build",
-    "file": "/app/facerecognition/src/facerecognition.cpp",
-    "output": "/app/facerecognition/build/CMakeFiles/facerecognition.dir/src/facerecognition.cpp.o"
+    "directory": "/home/konrad/facerecognition/build",
+    "file": "/home/konrad/facerecognition/src/facerecognition.cpp",
+    "output": "/home/konrad/facerecognition/build/CMakeFiles/facerecognition.dir/src/facerecognition.cpp.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-DFACERECOGNITION_VERSION=\"0.1.0\"",
+      "-I/home/konrad/facerecognition/include",
+      "-I/home/konrad/facerecognition/src",
+      "-isystem",
+      "/usr/local/include/opencv4",
+      "-c",
+      "-o",
+      "CMakeFiles/facerecognition_example.dir/examples/facerecognition_cli.cpp.o",
+      "/home/konrad/facerecognition/examples/facerecognition_cli.cpp"
+    ],
+    "directory": "/home/konrad/facerecognition/build",
+    "file": "/home/konrad/facerecognition/examples/facerecognition_cli.cpp",
+    "output": "/home/konrad/facerecognition/build/CMakeFiles/facerecognition_example.dir/examples/facerecognition_cli.cpp.o"
   }
 ]

@@ -13,7 +13,8 @@ int simple(string imagePath, string dbPath) {
   Mat frame = imread(imagePath);
   FaceRecognition facerecognizer;
   facerecognizer.loadPersonsDB(dbPath);
-  facerecognizer.run(frame);
+  facerecognizer.run(frame, 0.4, true);
+  imwrite("./media/result.jpg", frame);
   return 0;
 }
 

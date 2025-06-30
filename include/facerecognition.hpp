@@ -99,15 +99,17 @@ public:
    * Loads the persons database from the specified folder.
    *
    * @param persondb_folder The folder containing the persons database.
-   * @param force If true, forces reloading the database even if it's already loaded.
-   * @param visualize If true, visualizes the detected faces, writes images with suffix
-   *    _visualize in the same folder.
+   * @param force If true, forces reloading the database even if it's already
+   * loaded.
+   * @param visualize If true, visualizes the detected faces, writes images with
+   * suffix _visualize in the same folder.
    */
   void loadPersonsDB(filesystem::path persondb_folder, bool force = false, bool visualize = false);
 
   /**
    * Starts watching the database folder for changes.
-   * @param check_interval_seconds How often to check for changes (default: 5 seconds)
+   * @param check_interval_seconds How often to check for changes (default: 5
+   * seconds)
    */
   void startWatching(int check_interval_seconds = 5);
 
@@ -120,22 +122,28 @@ public:
    * Performs face recognition on the given frame.
    *
    * @param frame The input frame where faces will be detected and recognized.
+   * @param threshold The similarity threshold for matching.
+   * @param visualize If true, visualizes the detected faces.
    * @return list of Matching faces with their names and scores.
    */
-  vector<MatchResult> run(Mat frame, float threshold = 0.3f);
+  vector<MatchResult> run(Mat &frame, float threshold = 0.3f, bool visualize = false);
 
   /**
-   * Performs face recognition on the given frame. Returns only the best matching face.
+   * Performs face recognition on the given frame. Returns only the best
+   * matching face.
    *
    * @param frame The input frame where faces will be detected and recognized.
+   * @param threshold The similarity threshold for matching.
+   * @param visualize If true, visualizes the detected faces.
    * @return Best matching face with its name and score.
    */
-  MatchResult run_one_face(Mat frame, float threshold = 0.3f);
+  MatchResult run_one_face(Mat frame, float threshold = 0.3f, bool visualize = false);
 
   /**
    * @brief Annotate the frame with the name of the person
    * @param frame Image to be altered
-   * @param face Output of the face detector, containing the bounding box and landmarks
+   * @param face Output of the face detector, containing the bounding box and
+   * landmarks
    */
   void annotate_with_name(cv::Mat &frame, const DetectedFace &face);
 
@@ -190,7 +198,8 @@ private:
   static void visualize(Mat &input, int frame, Mat &faces, int thickness = 2);
 
   /**
-   * Resizes the input frame to a maximum size while maintaining the aspect ratio.
+   * Resizes the input frame to a maximum size while maintaining the aspect
+   * ratio.
    *
    * @param frame The input frame to be resized.
    * @param maxSize The maximum size for either width or height.
@@ -211,8 +220,8 @@ private:
    *
    * @param faceFeature The feature vector of the face to match.
    * @param threshold The similarity threshold for matching.
-   * @return A MatchResults object, containing a vector of MatchResult structures
-   *  and the name of the best matching person.
+   * @return A MatchResults object, containing a vector of MatchResult
+   * structures and the name of the best matching person.
    */
   MatchResults findBestMatch(const Mat &faceFeature, float threshold = 0.3f);
 };
