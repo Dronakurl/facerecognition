@@ -17,7 +17,8 @@ using namespace std;
 #define nmsThreshold 0.3
 #define topK 5000
 
-FaceRecognition::FaceRecognition(const std::string &fdModelPath, const std::string &frModelPath) {
+FaceRecognition::FaceRecognition(const std::string &fdModelPath, const std::string &frModelPath,
+                                 int maxSize) {
   FR_DEBUG("Initializing face recognition");
   FR_DEBUG("Testing face detection model file exists: %s", fdModelPath.c_str());
   assert(std::filesystem::exists(fdModelPath));
@@ -26,6 +27,7 @@ FaceRecognition::FaceRecognition(const std::string &fdModelPath, const std::stri
   this->detector = FaceDetectorYN::create(fdModelPath, "", Size(400, 400), scoreThreshold,
                                           nmsThreshold, topK, 0, 0);
   this->face_recognizer = FaceRecognizerSF::create(frModelPath, "");
+  this->maxSize = maxSize;
 }
 
 FaceRecognition::~FaceRecognition() { stopWatching(); }
@@ -122,9 +124,14 @@ void FaceRecognition::visualize(Mat &input, int frame, Mat &faces, int thickness
   }
 }
 
-void FaceRecognition::resizeFrame(Mat &frame, int maxSize, bool keepAspectRatio) {
-  // FR_DEBUG("Before resize: Frame size: %d x %d = %d", frame.cols, frame.rows,
-  // frame.size().area());
+void FaceRecognition::resizeFrame(Mat &frame, bool keepAspectRatio) {
+  // No Resizing requested
+  if (maxSize <= 0)
+    return;
+  if (frame.empty()) {
+    FR_WARNING("Frame is empty or invalid");
+    return;
+  }
   if (keepAspectRatio) {
     if (frame.cols > maxSize || frame.rows > maxSize) {
       int max_dim = max(frame.cols, frame.rows);
@@ -134,8 +141,6 @@ void FaceRecognition::resizeFrame(Mat &frame, int maxSize, bool keepAspectRatio)
   } else {
     resize(frame, frame, Size(maxSize, maxSize));
   }
-  // FR_DEBUG("After resize: Frame size: %d x %d = %d", frame.cols, frame.rows,
-  // frame.size().area());
 }
 
 vector<DetectedFace> FaceRecognition::extractFeatures(Mat &frame) {
@@ -148,7 +153,7 @@ vector<DetectedFace> FaceRecognition::extractFeatures(Mat &frame) {
     return {};
   }
   Size originalSize = frame.size();
-  resizeFrame(frame, 600, true);
+  resizeFrame(frame, true);
   FR_DEBUG("Frame size: %d x %d", frame.cols, frame.rows);
   // FR_DEBUG("Detector input size: %d x %d", detector->getInputSize().width,
   //          detector->getInputSize().height);

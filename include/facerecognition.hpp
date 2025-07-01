@@ -88,7 +88,10 @@ public:
    * Initializes the detection and recognition models.
    */
   FaceRecognition(const std::string &fdModelPath = "./models/face_detection_yunet_2023mar.onnx",
-                  const std::string &frModelPath = "./models/face_recognition_sface_2021dec.onnx");
+                  const std::string &frModelPath = "./models/face_recognition_sface_2021dec.onnx",
+                  int maxSize = 600);
+
+  void setMaxSize(int size) { maxSize = size; }
 
   /**
    * Destructor - stops watching thread if running.
@@ -155,6 +158,8 @@ public:
   }
 
 private:
+  /// @brief Maximum width of the input frame
+  int maxSize = 400;
   /// @brief Indicates whether the database is loaded.
   atomic<dbLoadStatus> isDBLoaded = NOT_LOADED;
   /// @brief a mapping of name to a vector of features.
@@ -202,10 +207,9 @@ private:
    * ratio.
    *
    * @param frame The input frame to be resized.
-   * @param maxSize The maximum size for either width or height.
    * @param keepAspectRatio Whether to keep the aspect ratio.
    */
-  static void resizeFrame(Mat &frame, int maxSize = 400, bool keepAspectRatio = false);
+  void resizeFrame(Mat &frame, bool keepAspectRatio = false);
 
   /**
    * Extracts features from detected faces in the given frame.

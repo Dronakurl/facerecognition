@@ -12,6 +12,7 @@ using namespace std;
 int simple(string imagePath, string dbPath) {
   Mat frame = imread(imagePath);
   FaceRecognition facerecognizer;
+  facerecognizer.setMaxSize(1000);
   facerecognizer.loadPersonsDB(dbPath);
   facerecognizer.run(frame, 0.4, true);
   imwrite("./media/result.jpg", frame);
