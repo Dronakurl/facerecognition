@@ -1,0 +1,7 @@
+# Set line legnth to 100 characters
+ColumnLimit: 100
+# # Set the number of spaces for indentation to 2
+# indentation_spaces: 2
+#
+# # Set the number of spaces for indentation to 2
+# indentation_indent: 2
