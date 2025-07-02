@@ -1,3 +1,4 @@
 .cache/clangd/index
 build
 include/CLI11.hpp
+.archive

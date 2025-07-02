@@ -283,7 +283,6 @@ void FaceRecognition::annotate_with_name(Mat &frame, const DetectedFace &face) {
 vector<MatchResult> FaceRecognition::run(Mat &frame, float threshold, bool visualize) {
   vector<DetectedFace> det_faces;
   if (!visualize) {
-    FR_DEBUG("Cloning");
     Mat frame_copy = frame.clone();
     det_faces = extractFeatures(frame_copy);
   } else {
