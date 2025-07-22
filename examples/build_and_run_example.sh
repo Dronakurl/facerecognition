@@ -16,4 +16,4 @@ cmake ..
 bear -- make -j"$(nproc)"
 cd ..
 
-./build/facerecognition_example -i ./media/IMG.jpg -d ./media/friendsdb "$@"
+./build/facerecognition_example "$@"
